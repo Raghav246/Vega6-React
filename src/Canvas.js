@@ -1,28 +1,25 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import { fabric } from "fabric";
 
 export default function CanvasComponent({ image }) {
   const canvasRef = useRef(null);
   const fabricCanvas = useRef(null);
-  const [canvasWidth, setCanvasWidth] = useState(800);
-  const [canvasHeight, setCanvasHeight] = useState(600);
-  const [imageURL, setImageURL] = useState(image);
 
   useEffect(() => {
     // Initialize Fabric.js canvas
     fabricCanvas.current = new fabric.Canvas(canvasRef.current);
 
-    if (imageURL) {
-      fabric.Image.fromURL(imageURL, (img) => {
+    if (image) {
+      fabric.Image.fromURL(image, (img) => {
         img.set({
           crossOrigin: "anonymous", // This sets the CORS headers to be anonymous
         });
-        img.scaleToWidth(canvasWidth);
-        img.scaleToHeight(canvasHeight);
+        img.scaleToWidth(canvasRef.current.width);
+        img.scaleToHeight(canvasRef.current.height);
         fabricCanvas.current.setBackgroundImage(
           img,
           fabricCanvas.current.renderAll.bind(fabricCanvas.current),
-          { scaleX: canvasWidth / img.width, scaleY: canvasHeight / img.height }
+          { scaleX: canvasRef.current.width / img.width, scaleY: canvasRef.current.height / img.height }
         );
       }, { crossOrigin: "anonymous" });
     }
@@ -34,12 +31,12 @@ export default function CanvasComponent({ image }) {
     return () => {
       fabricCanvas.current.dispose();
     };
-  }, [imageURL, canvasWidth, canvasHeight]);
+  }, [image]); // Only rerun if the image prop changes
 
   const logCanvasObjects = () => {
     // Get all objects on the canvas
     const objects = fabricCanvas.current.getObjects();
-    
+
     // Log details of each object
     const objectDetails = objects.map((obj) => {
       if (obj.type === 'image') {
@@ -87,7 +84,7 @@ export default function CanvasComponent({ image }) {
       left: 50,
       top: 50,
       fontSize: 20,
-      fill: "#FF0000",
+      fill: "#FFFFFF",
       editable: true,
     });
     fabricCanvas.current.add(text);
@@ -146,31 +143,16 @@ export default function CanvasComponent({ image }) {
     }
   };
 
-  const handleAddTextClick = () => {
-    const text = new fabric.Textbox('Enter Caption', {
-      left: 50,
-      top: 50,
-      fontSize: 20,
-      fill: '#000', // Text color
-      editable: true,
-    });
-    
-    // Add the text and bring it to the front to ensure it's above shapes
-    fabricCanvas.current.add(text);
-    text.bringToFront();
-    logCanvasObjects(); // Log the objects after adding new text
-  };
-
   return (
     <div className="canvas-container" style={{ textAlign: "center" }}>
       <div className="canvas-toolbar">
-        <button onClick={handleAddTextClick}>Add Text</button>
+        <button onClick={addText}>Add Text</button>
         <button onClick={() => addShape("rectangle")}>Add Rectangle</button>
         <button onClick={() => addShape("circle")}>Add Circle</button>
         <button onClick={() => addShape("triangle")}>Add Triangle</button>
         <button onClick={downloadImage}>Download</button>
       </div>
-      <canvas ref={canvasRef} width={canvasWidth} height={canvasHeight} />
+      <canvas ref={canvasRef} width={800} height={600} />
     </div>
   );
 }

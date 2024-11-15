@@ -4,6 +4,7 @@ import axios from 'axios';
 import SearchBar from './SearchBar';
 import Canvas from './Canvas';
 import {BrowserRouter,Routes,Route} from "react-router-dom"
+import { API_KEY } from './config';
 
 
 function App() {
@@ -16,7 +17,7 @@ function App() {
       const response = await axios.get(`https://api.unsplash.com/search/photos`, {
         params: {
           query,
-          client_id: 'rqPKEXXkN3rEtJtsuEnOvJEQxGHVlWLek-JNvVejmMQ', // Replace with your Unsplash API key
+          client_id:API_KEY, // Replace with your Unsplash API key
         },
       });
       setImages(response.data.results);
